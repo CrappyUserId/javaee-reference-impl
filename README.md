@@ -1,6 +1,6 @@
 # JAX-RS, JPA, and EJB3.1 Reference Implementation
 
-Web application which demonstrates how to structure a project that provides a RESTful web interface using JAX-RS, using JPA for persistence, and EJB3.1 technology for dependency injection and Container-Managed Transactions (CMTs).
+Web application which demonstrates how to structure a project that provides a RESTful web interface using JAX-RS, using JPA for persistence, and EJB3.1 technology for dependency injection and Container-Managed Transactions (CMTs).  Demonstrates three separate methods for data access (direct JPA, a facade, and DAOs).
 
 ## Background
 
@@ -25,14 +25,19 @@ JavaEE, JPA, EJBs, and Hibernate are all well known frameworks for developing en
 
 This small application demonstrates a modern, minimalistic approach to creating a JavaEE web application which uses JAX-RS for RESTful communications, JPA for database connectivity, and EJBs to provide CMTs.  CMTs allow the container (Wildfly in our case) to handle any transaction demarcation, freeing the developer from having to use repetitive code to manage them manually.  This application uses the latest versions and current recommended best practices for each constituent framework as of 2019.
 
-Key files:
+Key files and packages:
 
 * src/main/java/org/jwr/ee/ExampleApplication.java
 	* Main entry point into JAX-RS application.  @ApplicationPath annotation describes root URL path and identifies it to the container.
 * src/main/java/org/jwr/ee/services/ExampleRestService.java
 	* JAX-RS REST service (specified by @Path) which is also an EJB (specified by @Stateless).  This enables us to provide REST methods while also leveraging an injected @PersistenceContext to use JPA.  CMTs are used for EJBs by default, so there is no need to specifically mandate them.
+	* Two other services exist in the same package, one for an example of a facade and one for a DAO example.
 * src/main/java/org/jwr/ee/entities/Todo.java
 	* JPA entity which serves as a sample object to persist.  Only required annotations are present; defaults are assumed for others.
+* src/main/java/org/jwr/ee/facade
+	* Demonstrates how to create an EJB-aware database facade.
+* src/main/java/org/jwr/ee/dao
+	* Demonstrates how to create an EJB-aware DAO hierarchy.
 * src/main/resources/META-INF/persistence.xml
 	* JPA specification file that uses a container-provided datasource (<jta-data-source>), and indicates CMTs should be used (<transaction-type>).  Also includes several Hibernate-specific properties.
 
@@ -42,7 +47,7 @@ Key files:
 2. Install your preferred SQL-based database (Postgres was used for this example).
 3. Install a JDBC driver for your database as a module in your Wildfly installation.
 4. Create a datasource in your Wildfly standalone.xml configuration file and configure it to use the installed JDBC driver.
-5. Modify persistence.xml to your datasource if necessary.
+5. Modify persistence.xml based on your datasource if necessary.
 
 ## Deployment
 
@@ -50,6 +55,7 @@ Key files:
 2. Copy the WAR file in the `target` directory into the deployment directory of your Wildfly instance.
 3. In a browser, navigate to `http://[YourWildflyIP]:8080/example/rest/ping` to view the status message.
 4. Navigate to `http://[YourWildflyIP]:8080/example/rest/test` to create an object and have JPA persist it to the database.
+5. The URLs `http://[YourWildflyIP]:8080/example/facade/test` and `http://[YourWildflyIP]:8080/example/dao/test` behave the exact same way as the previous step, but use a facade and DAO design pattern respectively.
 
 ## Thoughts on DAOs
 
